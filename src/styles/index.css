@@ -188,6 +188,163 @@ ul {
   }
 }
 
+/* ---------- 도입부 인트로 오버레이 ---------- */
+/* 1단계: 단어들이 화면 위에서 하나씩 떨어져 중앙에 세로 한 줄로 쌓인다. */
+/* (다음 단계에서 합체 → 좌우 분리 → 양쪽 커튼 와이프로 히어로 전환을 붙인다.) */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* 좌·우 커튼 패널 — 닫혔을 땐 둘이 합쳐 화면 전체 그라데이션을 이룬다(이음새 없음). */
+.intro-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  overflow: hidden;
+  z-index: 1; /* 빛(0) 위 — 커튼은 보이게 열리고, 벌어진 틈으로만 빛이 드러남 */
+  transition: transform 2.2s cubic-bezier(0.5, 0, 0.1, 1); /* 커튼 열림(단어와 한 동작) */
+}
+.intro-panel.left {
+  left: 0;
+}
+.intro-panel.right {
+  right: 0;
+}
+
+/* 패널 속 그라데이션 채움 — 화면 전체 폭(100vw) 기준이라 두 패널이 이음새 없이 이어진다.
+   사이트와 동일한 flow-x 를 두 패널이 똑같이 공유해 항상 동기화된다. */
+.intro-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100vw;
+  background: linear-gradient(
+    90deg,
+    var(--grad-1),
+    var(--grad-2),
+    var(--grad-3),
+    var(--grad-4),
+    var(--grad-1)
+  );
+  background-size: 400% 100%;
+  animation: flow-x 12s linear infinite;
+  filter: saturate(1.12);
+}
+.intro-panel.left .intro-fill {
+  left: 0; /* 화면 왼쪽 절반을 보여줌 */
+}
+.intro-panel.right .intro-fill {
+  right: 0; /* 화면 오른쪽 절반을 보여줌 */
+}
+
+/* 커튼이 열릴 때 '벌어진 틈'으로 드러나는 빛 — 패널 뒤(z:0)에 깔려 있다가
+   커튼이 갈라지며 틈으로 보인다. 불투명한 흰색이라 그 틈으로 히어로 대신 빛이 보인다. */
+.intro-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 50% 48%,
+    #ffffff 0%,
+    #ffffff 58%,
+    rgba(255, 246, 255, 0.95) 82%,
+    rgba(248, 232, 255, 0.85) 100%
+  );
+  opacity: 0;
+  z-index: 0; /* 패널 뒤 — 틈으로만 보이므로 커튼 모션이 가려지지 않음 */
+  pointer-events: none;
+}
+
+/* 단어 스택 — 화면 중앙, 세로 한 줄. 이미 줄 서 있는 상태로 '한 덩어리'로 함께 낙하한다. */
+.intro-words {
+  position: relative;
+  z-index: 2; /* 패널(1) 위 — 커튼 위에 얹혀 함께 갈라져 나간다 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(6px, 2.1vh, 27px);
+  text-align: center;
+  /* 낙하: 위에서 가속 낙하(중력 느낌) → 살짝 튕기며 정착. 전체가 한 번에 떨어진다. */
+  animation: intro-fall 3s both;
+  will-change: transform;
+}
+
+/* 각 단어 — 사이트와 같은 고딕(Pretendard, body 상속), 흰색 글자 */
+.intro-word {
+  font-size: clamp(1.4rem, 4.8vw, 2.7rem);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.12;
+  color: #fff;
+  /* 밝은 그라데이션 위에서 흰 글자가 묻히지 않도록 은은한 그림자 */
+  text-shadow: 0 1px 18px rgba(108, 50, 180, 0.28);
+  /* 합체·분리 전환 — 낙하와 비슷한 느긋하고 차분한 이징 */
+  transition: transform 1.5s cubic-bezier(0.65, 0, 0.35, 1);
+  will-change: transform;
+}
+
+/* 합체 — 모든 단어가 가운데로 수렴해 하나의 덩어리로 모인다 (--i 기준) */
+.intro-merge .intro-word,
+.intro-open .intro-word {
+  transform: translateY(calc((4.5 - var(--i)) * 1.45em));
+}
+
+/* ── 3단계: 펼침(커튼 열림) ── */
+/* 합체에서 곧장 이어져, 두 그룹이 갈라지며 '그대로 양 끝까지' 한 동작으로 빠진다(끊김 없음). */
+.intro-open .intro-word {
+  transition: transform 2.2s cubic-bezier(0.5, 0, 0.1, 1);
+  transform: translateY(calc((4.5 - var(--i)) * 1.45em))
+    translateX(calc(var(--g) * 62vw));
+}
+/* 그라데이션 패널도 같은 동작으로 양쪽 끝으로 빠지며 히어로가 드러난다. */
+.intro-open .intro-panel.left {
+  transform: translateX(-100%);
+}
+.intro-open .intro-panel.right {
+  transform: translateX(100%);
+}
+/* 빛은 펼침 시작 전부터 패널 뒤에 켜져 있다(닫힌 커튼에 가려 안 보임).
+   커튼이 갈라지면 그 틈으로 흰 빛이 드러나고(히어로 대신 빛), 다 열린 뒤 사라지며 히어로가 보인다. */
+.intro-open .intro-glow {
+  animation: intro-light 2.2s ease-out forwards;
+}
+@keyframes intro-light {
+  0% {
+    opacity: 1; /* 켜진 채 닫힌 커튼 뒤에 숨어 있음 */
+  }
+  74% {
+    opacity: 1; /* 커튼이 갈라지는 동안 틈으로 빛이 드러남 */
+  }
+  100% {
+    opacity: 0; /* 커튼이 다 열린 뒤 빛이 사라지며 히어로 노출 */
+  }
+}
+
+@keyframes intro-fall {
+  0% {
+    transform: translateY(-122vh);
+    /* 가속(ease-in) — 떨어지며 빨라지는 중력 느낌 */
+    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0.45);
+  }
+  62% {
+    transform: translateY(0);
+    /* 감속(ease-out) — 바닥에 부드럽게 닿음 */
+    animation-timing-function: cubic-bezier(0.3, 0.7, 0.4, 1);
+  }
+  78% {
+    transform: translateY(-10px); /* 살짝 튕김 */
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
 /* ---------- 레이아웃 공통 ---------- */
 .section {
   position: relative;

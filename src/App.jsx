@@ -1,3 +1,4 @@
+import Intro from './components/Intro'
 import CustomCursor from './components/CustomCursor'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
@@ -10,6 +11,9 @@ import { profile } from './data'
 export default function App() {
   return (
     <>
+      {/* 도입부 인트로 오버레이 (이름 페이드인 → 가로 와이프 → 히어로) */}
+      <Intro />
+
       {/* 좌우로 흐르는 그라데이션 배경 + 컬러 블롭 */}
       <div className="bg-gradient" aria-hidden="true" />
       <div className="bg-blobs" aria-hidden="true">
