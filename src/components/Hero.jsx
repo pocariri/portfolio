@@ -1,14 +1,29 @@
 import { profile, tagline } from '../data'
+import {
+  SiSwift,
+  SiReact,
+  SiTypescript,
+  SiJavascript,
+  SiSpringboot,
+  SiMysql,
+} from 'react-icons/si'
+// Java 로고는 Simple Icons(react-icons/si)에서 상표 문제로 제거되어, Devicons 세트에서 가져온다.
+import { DiJava } from 'react-icons/di'
 
-// 히어로 전체에 넓게 흩어 놓을 부유 요소 (기술 스택 + 기하 도형)
-// React: 좌측 중앙 / Swift: 우측 상단 / Spring Boot: 우측 하단
-const FLOATS = [
-  { kind: 'pill', label: 'React', pos: { top: '42%', left: '6%' }, dur: 6, delay: 0 },
-  { kind: 'pill', label: 'Swift', pos: { top: '15%', right: '7%' }, dur: 6.3, delay: 0.4 },
-  { kind: 'pill', label: 'Spring Boot', pos: { bottom: '20%', right: '7%' }, dur: 6.8, delay: 0.8 },
-  { kind: 'ring', pos: { top: '16%', left: '12%' }, dur: 5.5, delay: 0.3 },
-  { kind: 'square', pos: { bottom: '18%', left: '14%' }, dur: 5, delay: 1.2 },
-  { kind: 'plus', pos: { bottom: '9%', left: '50%' }, center: true, dur: 4.8, delay: 0.6 },
+// 떠다니는 기술 스택 8개 — 히어로의 빈 공간(상·하·좌우 가장자리)에 고르게 분포.
+// 중앙 텍스트는 z-index상 위에 있어 가독성을 해치지 않고, 아이콘은 텍스트 뒤·가장자리로 흩어진다.
+// color : 브랜드 컬러를 연보라·연분홍 무드에 맞춰 살짝 톤다운한 값.
+// tier  : core(항상) / md(태블릿까지) / lg(데스크탑만) — 화면이 좁을수록 개수를 줄인다.
+// move  : a(아래로 드리프트) / b(위로 드리프트) — 위치에 맞춰 화면 밖으로 잘 나가지 않게.
+const TECHS = [
+  { label: 'Swift', Icon: SiSwift, color: '#E2664A', pos: { top: '12%', left: '9%' }, tier: 'core', move: 'a', dur: 9, delay: 0 },
+  { label: 'TypeScript', Icon: SiTypescript, color: '#3E7DC4', pos: { top: '13%', right: '9%' }, tier: 'core', move: 'a', dur: 10.5, delay: 0.8 },
+  { label: 'React Native', Icon: SiReact, color: '#4F9BD4', pos: { bottom: '15%', left: '10%' }, tier: 'core', move: 'b', dur: 11, delay: 0.4 },
+  { label: 'Java', Icon: DiJava, color: '#5C86A0', pos: { bottom: '16%', right: '10%' }, tier: 'core', move: 'b', dur: 9.6, delay: 1.1 },
+  { label: 'React', Icon: SiReact, color: '#4FB3D0', pos: { top: '40%', left: '4%' }, tier: 'md', move: 'b', dur: 10, delay: 0.6 },
+  { label: 'JavaScript', Icon: SiJavascript, color: '#CBAB17', pos: { top: '42%', right: '4%' }, tier: 'md', move: 'a', dur: 10.8, delay: 1.4 },
+  { label: 'Spring Boot', Icon: SiSpringboot, color: '#67A640', pos: { top: '7%', left: '50%' }, center: true, tier: 'lg', move: 'a', dur: 12, delay: 0.3 },
+  { label: 'MySQL', Icon: SiMysql, color: '#4E7FA3', pos: { bottom: '11%', left: '40%' }, tier: 'lg', move: 'b', dur: 11.5, delay: 0.9 },
 ]
 
 export default function Hero() {
@@ -24,16 +39,26 @@ export default function Hero() {
 
       {/* 부유 요소 (크게·넓게·또렷한 움직임) — 외곽(위치) + 내부(애니메이션) 분리 */}
       <div className="hero-floats" aria-hidden="true">
-        {FLOATS.map((f, i) => (
-          <span key={i} className={`hf ${f.center ? 'hf-center' : ''}`} style={f.pos}>
+        {TECHS.map((t, i) => {
+          const Icon = t.Icon
+          return (
             <span
-              className={`hf-el hf-${f.kind}`}
-              style={{ '--dur': `${f.dur}s`, '--delay': `${f.delay}s` }}
+              key={i}
+              className={`hf hf-${t.tier} ${t.center ? 'hf-center' : ''}`}
+              style={t.pos}
             >
-              {f.kind === 'pill' ? f.label : f.kind === 'plus' ? '+' : null}
+              <span
+                className={`hf-el hf-pill hf-move-${t.move}`}
+                style={{ '--dur': `${t.dur}s`, '--delay': `${t.delay}s` }}
+              >
+                <span className="hf-ico" style={{ color: t.color }}>
+                  <Icon />
+                </span>
+                <span className="hf-label">{t.label}</span>
+              </span>
             </span>
-          </span>
-        ))}
+          )
+        })}
       </div>
 
       {/* 사진 없이 중앙 정렬된 텍스트 히어로 */}
