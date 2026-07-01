@@ -301,6 +301,29 @@ ul {
   will-change: transform;
 }
 
+/* 발표용 대기 안내 — 커튼이 닫힌 채 첫 입력(클릭/Enter)을 기다릴 때만 표시. 은은하게 명멸한다. */
+.intro-hint {
+  position: relative;
+  z-index: 2; /* 커튼 위 */
+  color: #ffffff;
+  font-size: clamp(0.95rem, 2.2vw, 1.25rem);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-shadow: 0 1px 3px rgba(58, 24, 108, 0.55), 0 2px 16px rgba(58, 24, 108, 0.45);
+  animation: intro-hint-pulse 1.9s ease-in-out infinite;
+  pointer-events: none; /* 클릭은 화면 어디서든 받도록 */
+  user-select: none;
+}
+@keyframes intro-hint-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
 /* 각 단어 — 사이트와 같은 고딕(Pretendard, body 상속), 다크 커튼 위 밝은 글자 */
 .intro-word {
   font-size: clamp(1.4rem, 4.8vw, 2.7rem);
