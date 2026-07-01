@@ -1,11 +1,13 @@
 import { contact } from '../data'
+import { FaGithub } from 'react-icons/fa'
 import Reveal from './Reveal'
 
 export default function Contact() {
   const items = [
     { ico: '📞', label: 'Phone', val: contact.phone, href: `tel:${contact.phone.replace(/-/g, '')}` },
     { ico: '✉️', label: 'Email', val: contact.email, href: `mailto:${contact.email}` },
-    { ico: '🐙', label: 'GitHub', val: '@pocariri', href: contact.github, external: true },
+    // GitHub 아이콘만 실제 로고(옥토캣)로 — currentColor 상속이라 라이트/다크 모두 자연스럽게
+    { ico: <FaGithub aria-hidden="true" />, label: 'GitHub', val: '@pocariri', href: contact.github, external: true },
   ]
 
   return (
