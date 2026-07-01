@@ -28,6 +28,14 @@
   /* dot-grid 텍스처 점 색 */
   --dot: rgba(124, 58, 237, 0.1);
 
+  /* 커튼 면 색 — 밝고 화사한 라벤더·모브·핑크. 히어로보다 살짝 진하고 채도가 있어
+     커튼과 히어로가 구분되지만, 커튼 자체는 밝고 세련된 톤(우중충하지 않게).
+     인트로 커튼 + '커튼 닫기' 오버레이가 함께 쓴다(라이트/다크 공통). */
+  --curtain-1: #c9a8f2; /* 화사한 라벤더 */
+  --curtain-2: #dca6df; /* 모브(라일락) */
+  --curtain-3: #bfa6f0; /* 연보라-바이올렛 */
+  --curtain-4: #f2a8d0; /* 화사한 핑크 */
+
   --nav-h: 68px;
   --radius: 20px;
   --maxw: 1080px;
@@ -219,7 +227,7 @@ ul {
 }
 
 /* 패널 속 그라데이션 채움 — 화면 전체 폭(100vw) 기준이라 두 패널이 이음새 없이 이어진다.
-   사이트와 동일한 flow-x 를 두 패널이 똑같이 공유해 항상 동기화된다. */
+   다크 커튼 그라데이션(딥 퍼플~딥 플럼)을 두 패널이 똑같이 공유해 항상 동기화되며 좌우로 흐른다. */
 .intro-fill {
   position: absolute;
   top: 0;
@@ -227,11 +235,11 @@ ul {
   width: 100vw;
   background: linear-gradient(
     90deg,
-    var(--grad-1),
-    var(--grad-2),
-    var(--grad-3),
-    var(--grad-4),
-    var(--grad-1)
+    var(--curtain-1),
+    var(--curtain-2),
+    var(--curtain-3),
+    var(--curtain-4),
+    var(--curtain-1)
   );
   background-size: 400% 100%;
   animation: flow-x 12s linear infinite;
@@ -242,6 +250,24 @@ ul {
 }
 .intro-panel.right .intro-fill {
   right: 0; /* 화면 오른쪽 절반을 보여줌 */
+}
+
+/* 커튼 주름(드레이프) — 세로로 '밝은 마루·어두운 골'이 반복되어 천이 접힌 결을 만든다.
+   fill(100vw)과 같은 폭에 화면 x=0 기준으로 타일링되어 두 패널 사이에서도 이음새가 없고,
+   패널이 좌우로 갈라질 때 패널 transform에 실려 주름도 함께 밀려 나간다. */
+.intro-fill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(96, 52, 140, 0.2) 0, /* 골(부드러운 라벤더 그림자) */
+    rgba(96, 52, 140, 0) 1.7%,
+    rgba(255, 255, 255, 0.45) 2.9%, /* 마루(빛 받는 결) */
+    rgba(255, 255, 255, 0) 4.1%,
+    rgba(96, 52, 140, 0.2) 5.6% /* 다음 골 */
+  );
+  pointer-events: none;
 }
 
 /* 커튼이 열릴 때 '벌어진 틈'으로 드러나는 빛 — 패널 뒤(z:0)에 깔려 있다가
@@ -275,15 +301,15 @@ ul {
   will-change: transform;
 }
 
-/* 각 단어 — 사이트와 같은 고딕(Pretendard, body 상속), 흰색 글자 */
+/* 각 단어 — 사이트와 같은 고딕(Pretendard, body 상속), 다크 커튼 위 밝은 글자 */
 .intro-word {
   font-size: clamp(1.4rem, 4.8vw, 2.7rem);
   font-weight: 800;
   letter-spacing: 0.06em;
   line-height: 1.12;
-  color: #fff;
-  /* 밝은 그라데이션 위에서 흰 글자가 묻히지 않도록 은은한 그림자 */
-  text-shadow: 0 1px 18px rgba(108, 50, 180, 0.28);
+  color: #ffffff; /* 흰색 글자 */
+  /* 밝은 라벤더·핑크 커튼 위에서 흰 글자가 묻히지 않도록 보라 그림자로 윤곽·광채를 준다 */
+  text-shadow: 0 1px 3px rgba(58, 24, 108, 0.55), 0 2px 16px rgba(58, 24, 108, 0.45);
   /* 합체·분리 전환 — 낙하와 비슷한 느긋하고 차분한 이징 */
   transition: transform 1.5s cubic-bezier(0.65, 0, 0.35, 1);
   will-change: transform;
@@ -1665,6 +1691,118 @@ ul {
 .fab:hover {
   transform: translateY(-3px) scale(1.07);
   box-shadow: 0 24px 50px -18px rgba(168, 85, 247, 0.6);
+}
+
+/* ---------- 커튼 닫기 버튼 + 닫힘 오버레이 ---------- */
+/* '맨 위로' 플로팅 버튼 바로 위. 열린 상태에서만 보이고, 누르면 커튼이 닫히며 함께 사라진다.
+   프로스트 톤이라 라이트/다크 모드 양쪽에서 또렷하게 보인다. */
+.curtain-fab {
+  position: fixed;
+  right: clamp(18px, 4vw, 36px);
+  bottom: calc(clamp(18px, 4vw, 36px) + 66px); /* FAB(54px) 위로 겹치지 않게 */
+  z-index: 200; /* 커튼(8000) 아래 — 닫히면 커튼이 이 버튼을 덮는다 */
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--violet-deep);
+  background: var(--bg-elev-solid);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  transition: opacity 0.4s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s ease;
+}
+.curtain-fab svg {
+  width: 22px;
+  height: 22px;
+}
+.curtain-fab:hover {
+  transform: translateY(-3px) scale(1.07);
+  box-shadow: 0 22px 46px -18px rgba(168, 85, 247, 0.5);
+}
+.curtain-fab:focus-visible {
+  outline: 2px solid var(--violet-deep);
+  outline-offset: 3px;
+}
+/* 닫는 순간 버튼은 커튼과 함께 페이드아웃(이후 클릭 불가) */
+.curtain-fab.is-gone {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.9);
+}
+
+/* 커튼 닫힘 오버레이 — 기본 열림(양옆 화면 밖) → .is-closed 시 좌우에서 들어와 화면을 덮음.
+   속도·이징은 인트로 커튼 걷힘과 동일(2.2s cubic-bezier(0.5,0,0.1,1))로 부드럽게. */
+.curtain-close {
+  position: fixed;
+  inset: 0;
+  z-index: 8000; /* 사이트 위 (초기 인트로 9000보다는 아래) */
+  overflow: hidden;
+  pointer-events: none; /* 열린 상태에서 사이트 조작을 막지 않음 */
+}
+.cc-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  overflow: hidden;
+  pointer-events: auto; /* 닫혀 화면을 덮으면 뒤 콘텐츠 조작 차단 (열림 땐 화면 밖) */
+  transition: transform 2.2s cubic-bezier(0.5, 0, 0.1, 1);
+}
+.cc-panel.left {
+  left: 0;
+  transform: translateX(-100%); /* 기본: 왼쪽 화면 밖(열림) */
+}
+.cc-panel.right {
+  right: 0;
+  transform: translateX(100%); /* 기본: 오른쪽 화면 밖(열림) */
+}
+/* 닫힘 — 두 폭이 제자리로 들어와 화면을 덮는다 */
+.curtain-close.is-closed .cc-panel.left,
+.curtain-close.is-closed .cc-panel.right {
+  transform: translateX(0);
+}
+
+/* 패널 속 천 — 100vw 폭에 화면 x=0 기준 타일링이라 두 폭 사이 이음새 없음.
+   인트로 커튼과 동일한 연보라·연분홍 그라데이션 + 세로 주름. */
+.cc-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100vw;
+  background: linear-gradient(
+    90deg,
+    var(--curtain-1),
+    var(--curtain-2),
+    var(--curtain-3),
+    var(--curtain-4),
+    var(--curtain-1)
+  );
+  background-size: 400% 100%;
+  animation: flow-x 12s linear infinite;
+  filter: saturate(1.12);
+}
+.cc-panel.left .cc-fill {
+  left: 0;
+}
+.cc-panel.right .cc-fill {
+  right: 0;
+}
+.cc-fill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(96, 52, 140, 0.2) 0,
+    rgba(96, 52, 140, 0) 1.7%,
+    rgba(255, 255, 255, 0.45) 2.9%,
+    rgba(255, 255, 255, 0) 4.1%,
+    rgba(96, 52, 140, 0.2) 5.6%
+  );
 }
 
 /* ---------- 스크롤 등장 애니메이션 ---------- */

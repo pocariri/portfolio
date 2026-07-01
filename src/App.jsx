@@ -6,6 +6,7 @@ import About from './components/About'
 import Portfolio from './components/Portfolio'
 import Contact from './components/Contact'
 import ScrollTopButton from './components/ScrollTopButton'
+import CurtainClose from './components/CurtainClose'
 import { profile } from './data'
 
 export default function App() {
@@ -37,6 +38,9 @@ export default function App() {
       </footer>
 
       <ScrollTopButton />
+
+      {/* 커튼 닫기 버튼 + 닫힘 오버레이 (열린 상태에서만 버튼 표시, 재오픈 없음) */}
+      <CurtainClose />
     </>
   )
 }
